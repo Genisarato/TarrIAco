@@ -40,6 +40,7 @@ def connect():
         user=f"{USERNAME}.{PROJECT_ID}",
         password=PASSWORD,
         sslmode="require",
+        
     )
 
 
