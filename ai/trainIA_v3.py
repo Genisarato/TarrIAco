@@ -15,9 +15,10 @@ from sklearn.metrics import classification_report, confusion_matrix, precision_r
 
 warnings.filterwarnings("ignore")
 
-DATA_PATH = "data/processed/dataset_final_pcc.csv"
-MODEL_S1_PATH = "data/processed/model_stage1_v3.joblib"
-MODEL_S2_PATH = "data/processed/model_stage2_v3.joblib"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.join(BASE_DIR, "..", "data", "processed", "dataset_final_pcc.csv")
+MODEL_S1_PATH = os.path.join(BASE_DIR, "..", "data", "processed", "model_stage1_v3.joblib")
+MODEL_S2_PATH = os.path.join(BASE_DIR, "..", "data", "processed", "model_stage2_v3.joblib")
 RANDOM_STATE = 42
 
 print("--- Iniciant entrenament jeràrquic V3 (Ultra Precisió) ---")
