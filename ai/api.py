@@ -103,7 +103,9 @@ def buscar_similars(id_pacient, k=10):
             "cronic": str(p["cronic"]),
             "situacio": str(p["situacio"]),
             "diags_totals": safe_int(p.get("diags_totals", 0)),
-            "farmacs_totals": safe_int(p.get("farmacs_totals", 0))
+            "farmacs_totals": safe_int(p.get("farmacs_totals", 0)),
+            "urg_total_visites": safe_int(p.get("urg_total_visites", 0)),
+            "hosp_total_visites": safe_int(p.get("hosp_total_visites", 0))
         })
     return results
 
@@ -189,6 +191,70 @@ def analyze():
         },
         "veins_similars": veins,
         "informe": informe_final
+    })
+
+@app.route("/api/pacient-info", methods=["POST"])
+def pacient_info():
+    body = request.get_json() or {}
+    id_pacient = body.get("id_pacient")
+    if not id_pacient:
+        return jsonify({"error": "Cal id_pacient"}), 400
+        
+    id_pacient = int(id_pacient)
+    if id_pacient not in df_indexed.index:
+        return jsonify({"error": "Pacient no trobat"}), 404
+
+    pacient_series = df_indexed.loc[id_pacient]
+    veins = buscar_similars(id_pacient, k=10)
+    
+    # Calcular la mitjana del grup (veïns similars)
+    mitjana_farmacs = sum([v.get("farmacs_totals", 0) for v in veins]) / len(veins)
+    mitjana_diags = sum([v.get("diags_totals", 0) for v in veins]) / len(veins)
+    mitjana_urg = sum([v.get("urg_total_visites", 0) for v in veins]) / len(veins)
+    mitjana_hosp = sum([v.get("hosp_total_visites", 0) for v in veins]) / len(veins)
+
+    context = {
+        "grup_edat": str(pacient_series["grup_edat"]),
+        "situacio": str(pacient_series.get("situacio", "A")),
+        "diags_totals": safe_int(pacient_series.get("diags_totals", 0)),
+        "farmacs_totals": safe_int(pacient_series.get("farmacs_totals", 0)),
+        "urg_totals": safe_int(pacient_series.get("urg_total_visites", 0)),
+        "hosp_totals": safe_int(pacient_series.get("hosp_total_visites", 0)),
+        "mitjana_grup_farmacs": round(mitjana_farmacs, 2),
+        "mitjana_grup_diags": round(mitjana_diags, 2),
+        "mitjana_grup_urg": round(mitjana_urg, 2),
+        "mitjana_grup_hosp": round(mitjana_hosp, 2)
+    }
+
+    prompt = f"""Ets un assistent de salut intel·ligent, empàtic i clar. 
+Estàs parlant directament amb un pacient d'entre {context['grup_edat']} anys. 
+DADES CLÍNIQUES (no les repeteixis directament com a dades fredes):
+- Té {context['diags_totals']} patologies cròniques (la mitjana del seu grup és {context['mitjana_grup_diags']}).
+- Pren {context['farmacs_totals']} fàrmacs diaris (la mitjana del seu grup és {context['mitjana_grup_farmacs']}).
+
+INSTRUCCIONS:
+Escriu 3 consells pràctics i motivadors per ajudar-lo a cuidar-se i seguir bé la seva medicació, tenint en compte breument si està per sobre o sota la mitjana (amb to amable i optimista).
+Ha de ser un missatge curt (màxim de 4 o 5 frases en total), càlid i esperançador. No utilitzis la paraula pacient, parla-li de tu.
+No parlis de metges, estadístiques complexes ni riscos."""
+    
+    try:
+        resp = http_requests.post(
+            OLLAMA_URL,
+            json={
+                "model": OLLAMA_MODEL, 
+                "prompt": prompt, 
+                "stream": False,
+                "options": {"temperature": 0.4}
+            },
+            timeout=120
+        )
+        consells = netejar_text(resp.json()["response"])
+    except Exception as e:
+        consells = "T'animem a mantenir hàbits saludables, passejar una mica cada dia, i seguir puntualment la teva medicació."
+
+    return jsonify({
+        "pacient": context,
+        "consells": consells
     })
 
 if __name__ == "__main__":
