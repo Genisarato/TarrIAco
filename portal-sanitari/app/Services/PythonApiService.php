@@ -13,10 +13,12 @@ use Illuminate\Support\Facades\Http;
 class PythonApiService
 {
     protected string $baseUrl;
+    protected string $ollamaUrl;
 
     public function __construct()
     {
         $this->baseUrl = rtrim(config('services.python_api.url', 'http://localhost:5000'), '/');
+        $this->ollamaUrl = rtrim(config('services.ollama.url', 'http://localhost:11434'), '/');
     }
 
     /**
@@ -25,9 +27,12 @@ class PythonApiService
      * @param string $dni
      * @return array  ['success' => bool, 'data' => mixed, 'error' => string|null]
      */
-    public function analyzePatient(string $dni): array
+    public function analyzePatient(string $idPacient): array
     {
-        return $this->request('POST', '/api/analyze', ['dni' => $dni]);
+        return $this->request('POST', '/api/analyze', [
+            'id_pacient' => $idPacient,
+            'ollama_url' => $this->ollamaUrl . '/api/generate'
+        ]);
     }
 
     /**
@@ -50,8 +55,8 @@ class PythonApiService
             $url = $this->baseUrl . $endpoint;
 
             $response = match (strtoupper($method)) {
-                'GET'  => Http::timeout(15)->get($url, $params),
-                'POST' => Http::timeout(15)->post($url, $params),
+                'GET'  => Http::timeout(60)->get($url, $params),
+                'POST' => Http::timeout(60)->post($url, $params),
                 default => throw new \InvalidArgumentException("Mètode HTTP no suportat: {$method}"),
             };
 

@@ -44,4 +44,8 @@ return [
         'url' => env('PYTHON_API_URL', 'http://localhost:5000'),
     ],
 
+    'ollama' => [
+        'url' => env('OLLAMA_API_URL', 'http://localhost:11434'),
+    ],
+
 ];
