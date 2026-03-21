@@ -25,7 +25,8 @@ warnings.filterwarnings("ignore")
 # =========================================================
 # CONFIGURACIÓ
 # =========================================================
-BASE_PATH = "."   # canvia-ho si cal
+BASE_PATH = os.path.join(".", "data", "raw")   # els xlsx estan a data/raw/
+OUT_PATH = "."                                  # outputs a l'arrel del projecte
 RANDOM_STATE = 42
 TRAIN_SIZE = 0.65
 TEST_SIZE = 0.25
@@ -43,14 +44,14 @@ FILE_HOSP = os.path.join(BASE_PATH, "visites_hospital.xlsx")
 FILE_INTERM = os.path.join(BASE_PATH, "visites_intermedia.xlsx")
 FILE_LAB = os.path.join(BASE_PATH, "laboratori.xlsx")
 
-OUT_DATASET = os.path.join(BASE_PATH, "dataset_final_pcc.csv")
-OUT_RESERVA = os.path.join(BASE_PATH, "reserva_pcc.csv")
-OUT_TEST_PRED = os.path.join(BASE_PATH, "prediccions_test_pcc.csv")
-OUT_MODEL_LOG = os.path.join(BASE_PATH, "model_logistic_pcc.joblib")
-OUT_MODEL_RF = os.path.join(BASE_PATH, "model_randomforest_pcc.joblib")
-OUT_FEATURES_RF = os.path.join(BASE_PATH, "importancia_variables_rf.csv")
-OUT_HIGH_RISK_PCC = os.path.join(BASE_PATH, "pacients_no_alta_probabilitat_pcc.csv")
-OUT_HIGH_RISK_MACA = os.path.join(BASE_PATH, "pacients_no_alta_probabilitat_maca.csv")
+OUT_DATASET = os.path.join(OUT_PATH, "dataset_final_pcc.csv")
+OUT_RESERVA = os.path.join(OUT_PATH, "reserva_pcc.csv")
+OUT_TEST_PRED = os.path.join(OUT_PATH, "prediccions_test_pcc.csv")
+OUT_MODEL_LOG = os.path.join(OUT_PATH, "model_logistic_pcc.joblib")
+OUT_MODEL_RF = os.path.join(OUT_PATH, "model_randomforest_pcc.joblib")
+OUT_FEATURES_RF = os.path.join(OUT_PATH, "importancia_variables_rf.csv")
+OUT_HIGH_RISK_PCC = os.path.join(OUT_PATH, "pacients_no_alta_probabilitat_pcc.csv")
+OUT_HIGH_RISK_MACA = os.path.join(OUT_PATH, "pacients_no_alta_probabilitat_maca.csv")
 
 
 # =========================================================
