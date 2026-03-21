@@ -1,5 +1,6 @@
 .env
 .venv/
 *.pkl
+*.joblib
 portal-sanitari/.env
 portal-sanitari/database/database.sqlite
