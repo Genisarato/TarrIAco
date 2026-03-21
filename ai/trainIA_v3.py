@@ -45,7 +45,7 @@ preprocessor = ColumnTransformer(
 )
 
 # =========================================================
-# ESTAT 1: CRÒNIC vs NO (Mantenim el filtre de seguretat de 0.5)
+# ESTAT 1: CRÒNIC vs NO
 # =========================================================
 print("\n[Estat 1] Entrenant Chronic vs NO...")
 y1 = (df["target"] > 0).astype(int)
