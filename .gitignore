@@ -1,7 +1,5 @@
 .env
 .venv/
-data/raw/
-data/processed/
 *.pkl
 portal-sanitari/.env
 portal-sanitari/database/database.sqlite
