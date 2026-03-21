@@ -83,31 +83,32 @@ def construir_context(id_pacient, veins):
     }
 
 # ── Prompt i crida a Ollama ──────────────────────────────────────
-def generar_informe(context: dict) -> str:
-    prompt = f"""Ets un assistent clínic de suport a la decisió mèdica.
-Analitza aquest pacient i genera un informe concís.
+def generar_informe(context, ollama_url=None):
+    prompt = f"""Ets un sistema expert de triatge clínic. La teva missió és classificar pacients basant-te NOMÉS en l'evidència estadística proporcionada.
 
-PACIENT (id: {context['id_pacient']}):
-- Grup d'edat: {context['grup_edat']}
-- Sexe: {context['sexe']}
-- Diagnòstics totals: {context['diags_totals']}
-- Fàrmacs totals: {context['farmacs_totals']}
-- Etiqueta actual: {context['cronic_actual']}
+### DADES DEL PACIENT ACTUAL:
+- Edat: {context['grup_edat']} | Sexe: {context['sexe']}
+- Clínica: {context['diags_totals']} diagnòstics, {context['farmacs_totals']} fàrmacs.
+- Classificació actual: {context['cronic_actual']}
 
-CASOS SIMILARS ({context['n_veins']} pacients, similitud {context['similitud_max']}–{context['similitud_min']}):
-- {context['pct_pcc']}% eren PCC
-- {context['pct_maca']}% eren MACA
-- {context['pct_no']}% eren NO crònics
-- {context['pct_mort_veins']}% han mort durant el seguiment
+### EVIDÈNCIA DELS 10 VEÏNS MÉS SIMILARS:
+- Mortalitat en el seguiment: {context['pct_mort_veins']}%
+- Classificats com a MACA (Final de vida): {context['pct_maca']}%
+- Classificats com a PCC (Complexos): {context['pct_pcc']}%
+- Classificats com a NO (Estables): {context['pct_no']}%
 
-Genera un informe amb:
-1. Classificació recomanada: PCC / MACA / NO
-2. Nivell de confiança: BAIX / MITJÀ / ALT
-3. Justificació clínica (2-3 frases)
-4. Recomanació d'acció pel metge
+### REGLES DE LÒGICA OBLIGATÒRIES:
+1. Si la mortalitat dels veïns és 0%, la prognosi HA DE SER "Estable". Està prohibit predir la mort.
+2. Si el {context['pct_no']}% dels veïns són "NO", la teva recomanació ha de ser mantenir el pacient com a "NO".
+3. NO utilitzis llenguatge dramàtic. Sigues tècnic i breu.
 
-Sigues concís i clínic. Màxim 120 paraules. Respon en català."""
-
+### FORMAT DE RESPOSTA (Català):
+1. CLASSIFICACIÓ RECOMANADA: 
+2. CONFIANÇA: (BAIXA/MITJANA/ALTA)
+3. JUSTIFICACIÓ: (Màxim 2 frases basades en els percentatges anteriors).
+4. PROGNOSI: 
+5. ACCIÓ: 
+"""
     response = requests.post(
         "http://localhost:11434/api/generate",
         json={"model": "gemma3:1b", "prompt": prompt, "stream": False}

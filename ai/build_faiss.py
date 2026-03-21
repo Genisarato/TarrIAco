@@ -15,7 +15,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 # ── Carregar ─────────────────────────────────────────────────────
-df = pd.read_excel("../data/processed/dataset_analitico_clean.xlsx")
+df = pd.read_csv("../data/processed/dataset_final_pcc.csv")
 print(f"Carregat: {df.shape[0]} pacients, {df.shape[1]} columnes")
 
 # ── Split 75/25 ──────────────────────────────────────────────────
