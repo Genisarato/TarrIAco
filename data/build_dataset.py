@@ -12,15 +12,15 @@ import pandas as pd
 
 # ── 1. Cargar las tablas ─────────────────────────────────────────────
 print("Cargando cohort.xlsx ...")
-cohort = pd.read_excel("cohort.xlsx")
+cohort = pd.read_excel("raw/cohort.xlsx")
 print(f"  cohort: {cohort.shape[0]} filas, {cohort.shape[1]} columnas")
 
 print("Cargando diagnostics.xlsx ...")
-diagnostics = pd.read_excel("diagnostics.xlsx")
+diagnostics = pd.read_excel("raw/diagnostics.xlsx")
 print(f"  diagnostics: {diagnostics.shape[0]} filas, {diagnostics.shape[1]} columnas")
 
 print("Cargando farmacs.xlsx ...")
-farmacs = pd.read_excel("farmacs.xlsx")
+farmacs = pd.read_excel("raw/farmacs.xlsx")
 print(f"  farmacs: {farmacs.shape[0]} filas, {farmacs.shape[1]} columnas")
 
 # ── 2. Left Join 1:1 ────────────────────────────────────────────────
@@ -34,10 +34,10 @@ print(f"  Resultado parcial: {df.shape[0]} filas, {df.shape[1]} columnas")
 
 # ── 3. Agregaciones 1:N — conteo de visitas por paciente ─────────────
 visit_tables = {
-    "visites_hospital.xlsx":    ("id_visita_hospital",    "num_visitas_hospital"),
-    "visites_intermedia.xlsx":  ("id_visita_intermedia",  "num_visitas_intermedia"),
-    "visites_primaria.xlsx":    ("id_visita_ap",          "num_visitas_primaria"),
-    "visites_urgencies.xlsx":   ("id_visita_urgencies",   "num_visitas_urgencias"),
+    "raw/visites_hospital.xlsx":    ("id_visita_hospital",    "num_visitas_hospital"),
+    "raw/visites_intermedia.xlsx":  ("id_visita_intermedia",  "num_visitas_intermedia"),
+    "raw/visites_primaria.xlsx":    ("id_visita_ap",          "num_visitas_primaria"),
+    "raw/visites_urgencies.xlsx":   ("id_visita_urgencies",   "num_visitas_urgencias"),
 }
 
 for file, (visit_id_col, new_col) in visit_tables.items():
@@ -61,7 +61,7 @@ for file, (visit_id_col, new_col) in visit_tables.items():
 
 # ── 4. Variables de laboratorio — mean y slope por prueba ────────────
 print("\nCargando laboratori.xlsx ...")
-lab = pd.read_excel("laboratori.xlsx")
+lab = pd.read_excel("raw/laboratori.xlsx")
 print(f"  laboratori: {lab.shape[0]} filas, {lab['id_pacient'].nunique()} pacientes, {lab['desc_prova_ics'].nunique()} pruebas")
 
 # Nombre corto para cada prueba (para usar como sufijo de columna)
@@ -125,7 +125,7 @@ for col in df.columns:
         print(f"    {col}: {nulls[col]} nulos ({100*nulls[col]/len(df):.1f}%)")
 
 # ── 6. Guardar ───────────────────────────────────────────────────────
-output_path = "dataset_analitico.xlsx"
+output_path = "processed/dataset_analitico.xlsx"
 print(f"\nGuardando en {output_path} ...")
 df.to_excel(output_path, index=False)
 print(f"¡Guardado correctamente! ({output_path})")
