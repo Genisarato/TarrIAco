@@ -273,6 +273,13 @@
                 <button type="submit" class="btn-login" id="btn-login">
                     Iniciar Sessió
                 </button>
+
+                <div style="margin-top: 28px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 24px;">
+                    <p style="font-size: 14px; color: #64748b; margin-bottom: 12px; font-weight: 500;">Ets un pacient i vols veure el teu resum de salut?</p>
+                    <a href="{{ route('pacient.login') }}" style="display: inline-block; padding: 12px 24px; background: #f8fafc; color: #2563eb; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; border: 1px solid #bfdbfe; transition: all 0.2s;">
+                        Accedeix al Portal Pacient
+                    </a>
+                </div>
             </form>
         </div>
     </div>

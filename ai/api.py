@@ -62,19 +62,42 @@ def netejar_text(text):
     return text.replace('*', '').replace('#', '').strip()
 
 def fer_prediccio_v3(pacient_series):
-    row_df = pd.DataFrame([pacient_series]).drop(columns=['id_pacient', 'target', 'cronic'], errors='ignore')
-    prob_chronic = float(model_v3_s1.predict_proba(row_df)[:, 1][0])
+    # 1. Convertim en DataFrame (el Pipeline necessita noms de columnes)
+    row_df = pd.DataFrame([pacient_series])
     
-    if prob_chronic < 0.80:
-        return "NO", (1 - prob_chronic)
+    # 2. SELECCIÓ DE COLUMNES: Molt important!
+    # El Pipeline (ColumnTransformer) espera trobar exactament les columnes 'sexe', 'grup_edat', etc.
+    # NO li passis 'sexe_encoded', ell vol 'sexe' (text).
     
-    probs_s2 = model_v3_s2.predict_proba(row_df)[0]
-    prob_maca = float(probs_s2[1])
-    
-    if prob_maca >= 0.40:
-        return "MACA", prob_maca
-    else:
-        return "PCC", float(probs_s2[0])
+    # Columnes que hem de treure perquè no s'han usat en el .fit()
+    drop_cols = ["id_pacient", "target", "cronic", "cronic_encoded", "sexe_encoded", "situacio_encoded", "edat_encoded"]
+    X = row_df.drop(columns=[c for c in drop_cols if c in row_df.columns], errors='ignore')
+
+    try:
+        # 3. PREDICCIÓ STAGE 1
+        # Passem el DataFrame X directament. El preprocessor intern farà la màgia.
+        probs_s1 = model_v3_s1.predict_proba(X)[0]
+        prob_no = float(probs_s1[0])
+        prob_chronic = float(probs_s1[1])
+        
+        # Llindar de 0.5 per a la demo (més equilibrat)
+        if prob_chronic < 0.50:
+            return "NO", prob_no
+        
+        # 4. PREDICCIÓ STAGE 2
+        probs_s2 = model_v3_s2.predict_proba(X)[0]
+        # En el teu script V3: 0=PCC (target 1), 1=MACA (target 2)
+        prob_pcc = float(probs_s2[0])
+        prob_maca = float(probs_s2[1])
+        
+        if prob_maca >= 0.40:
+            return "MACA", prob_maca
+        else:
+            return "PCC", prob_pcc
+            
+    except Exception as e:
+        print(f"DEBUG Error: {e}")
+        return "ERROR", str(e)
 
 def encode_patient(pacient_series):
     row = pd.DataFrame([pacient_series])
@@ -141,7 +164,7 @@ Respon en CATALÀ, format professional i directe. No incloguis advertències sob
                 "model": OLLAMA_MODEL, 
                 "prompt": prompt, 
                 "stream": False,
-                "options": {"num_predict": 275, "temperature": 0}
+                "options": {"num_predict": 250, "temperature": 0}
             },
             timeout=120
         )
@@ -187,7 +210,7 @@ def analyze():
         "pacient": context,
         "prediccio_v3": {
             "resultat": pred_v3,
-            "confianca": round(float(conf_v3), 4)
+            "confianca": round(float(conf_v3), 4) if isinstance(conf_v3, (int, float)) else conf_v3
         },
         "veins_similars": veins,
         "informe": informe_final

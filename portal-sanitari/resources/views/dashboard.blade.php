@@ -23,23 +23,28 @@
         @endif
 
         {{-- FORMULARI --}}
-        <form method="POST" action="{{ route('analyze') }}" id="analysis-form" style="display:flex; gap:12px; align-items: flex-end; margin-bottom: 30px;">
+        <form method="POST" action="{{ route('analyze') }}" id="analysis-form" style="display:flex; gap:16px; align-items: flex-end; margin-bottom: 30px; max-width: 500px;">
             @csrf
             <div style="flex:1;">
-                <label class="form-label" for="dni">ID Pacient (Test Set)</label>
+                <label class="form-label" for="dni" style="margin-bottom: 10px;">ID Pacient (Test Set)</label>
                 <input
                     type="text"
                     class="form-input"
                     id="dni"
                     name="dni"
-                    placeholder="Ex: 24954, 22644, 1024..."
+                    placeholder="Ex: 24954, 22644..."
                     value="{{ old('dni', $dni ?? '') }}"
                     required
                     autofocus
                     style="margin-bottom:0;"
                 >
             </div>
-            <button type="submit" class="btn-primary" id="btn-analyze" style="height:42px; padding: 0 24px;">Analitzar</button>
+            <button type="submit" class="btn-primary" id="btn-analyze" style="height:48px; padding: 0 32px; flex: 0 0 auto; width: auto; min-width: 140px; margin-top:0; position: relative;">
+                <span id="btn-text">Analitzar</span>
+                <span id="btn-spinner" style="display: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+                    <svg style="animation: spin 1s linear infinite; width: 20px; height: 20px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                </span>
+            </button>
         </form>
 
         {{-- RESULTATS --}}
@@ -119,19 +124,39 @@
                                 <p style="font-size:11px; color:#64748b; margin:0; text-transform: uppercase; font-weight:700;">Suggereix Classificar com</p>
                                 @php
                                     $pred = $resultat['prediccio_v3']['resultat'];
-                                    $color = $pred == 'NO' ? '#64748b' : ($pred == 'PCC' ? '#f59e0b' : '#ef4444');
-                                    $conf = $resultat['prediccio_v3']['confianca'] * 100;
+                                    $color = $pred == 'NO' ? '#64748b' : (($pred == 'MACA' || $pred == 'ERROR') ? '#ef4444' : '#f59e0b');
+                                    $confRaw = $resultat['prediccio_v3']['confianca'];
+                                    $conf = is_numeric($confRaw) ? $confRaw * 100 : 0;
                                 @endphp
                                 <p style="font-size:32px; font-weight:900; color: {{ $color }}; margin:5px 0;">{{ $pred }}</p>
                                 <div style="margin-top:12px;">
-                                    <p style="font-size:11px; color:#64748b; margin-bottom:4px; font-weight:700;">CONFIANÇA: {{ number_format($conf, 1) }}%</p>
-                                    <div style="height:6px; background:#f1f5f9; border-radius:3px; overflow:hidden;">
-                                        <div style="width:{{ $conf }}%; background:{{ $color }}; height:100%;"></div>
-                                    </div>
+                                    @if(is_numeric($confRaw))
+                                        <p style="font-size:11px; color:#64748b; margin-bottom:4px; font-weight:700;">CONFIANÇA: {{ number_format($conf, 1) }}%</p>
+                                        <div style="height:6px; background:#f1f5f9; border-radius:3px; overflow:hidden;">
+                                            <div style="width:{{ $conf }}%; background:{{ $color }}; height:100%;"></div>
+                                        </div>
+                                    @else
+                                        <p style="font-size:11px; color:#ef4444; margin-bottom:4px; font-weight:700;">{{ $confRaw }}</p>
+                                    @endif
                                 </div>
                             </div>
                         </div>
                     @endif
+
+                    {{-- 4. TARGETA FAMILIARS (HARDCODED) --}}
+                    <div style="padding:20px; background:white; border-radius:16px; border:1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px; border-bottom:1px solid #f1f5f9; padding-bottom:10px;">
+                            <div style="width:36px; height:36px; background:#fff1f2; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#e11d48;">
+                                <svg style="width:20px; height:20px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            </div>
+                            <h3 style="font-size:15px; font-weight:700; color:#1e293b; margin:0;">Antecedents familiars</h3>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+                            <div>
+                                <p>Cap familiar amb antecedents</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- INFORME GENERATIU --}}
@@ -169,9 +194,34 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
         .form-input:focus {
             border-color: #2563eb;
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         }
+        @media (max-width: 600px) {
+            #analysis-form { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
+            #btn-analyze { margin-top: 8px !important; width: 100% !important; min-width: auto !important; }
+        }
     </style>
+
+    <script>
+        document.getElementById('analysis-form').addEventListener('submit', function() {
+            // Desactiva el botó i canvia el text pel spinner per donar feedback dinàmic de UX
+            const btn = document.getElementById('btn-analyze');
+            document.getElementById('btn-text').style.opacity = '0';
+            document.getElementById('btn-spinner').style.display = 'block';
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.9';
+            
+            // Atenuar els resultats existents si l'usuari fa una nova consulta
+            const resultsContainer = document.querySelector('.results-container');
+            if (resultsContainer) {
+                resultsContainer.style.opacity = '0.4';
+                resultsContainer.style.transition = 'opacity 0.3s';
+            }
+        });
+    </script>
 @endsection

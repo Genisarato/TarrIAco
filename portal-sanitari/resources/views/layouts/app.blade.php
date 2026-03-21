@@ -394,6 +394,7 @@
             .sidebar.open { transform: translateX(0); }
             .sidebar-toggle { display: flex; }
             .main-wrapper { margin-left: 0; }
+            .topbar { padding: 16px 16px 16px 64px; }
             .main-content { padding: 24px 16px; }
             .content-card { padding: 24px 20px 20px; }
         }
@@ -448,15 +449,7 @@
                 <span class="nav-item-text">Anàlisi de Pacient</span>
             </a>
 
-            <a href="{{ route('classificacio') }}" class="nav-item {{ request()->routeIs('classificacio') ? 'active' : '' }}">
-                <!-- Layers/roles icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                    <polyline points="2 17 12 22 22 17"></polyline>
-                    <polyline points="2 12 12 17 22 12"></polyline>
-                </svg>
-                <span class="nav-item-text">Classificació de Rols</span>
-            </a>
+
         </nav>
 
         <div class="sidebar-footer">
