@@ -1,0 +1,22 @@
+name: 'hack26_data_pipeline'
+version: '1.0.0'
+config-version: 2
+
+# Este es el nombre del perfil de conexion que tendreis que poner en vuestro dbt profiles.yml
+profile: 'hack26_postgres'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  hack26_data_pipeline:
+    staging:
+      # Materializaremos la carpeta staging como "Views" para no duplicar datos
+      +materialized: view

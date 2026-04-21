@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: hack26
+    # Este es el esquema de base de datos original de donde lee = "public" o "ics_data"
+    schema: public
+    tables:
+      - name: cohort

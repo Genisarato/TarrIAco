@@ -4,3 +4,4 @@
 *.joblib
 portal-sanitari/.env
 portal-sanitari/database/database.sqlite
+terraform/main.tf
